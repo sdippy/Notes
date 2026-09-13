@@ -1,1 +1,28 @@
 @import "tailwindcss";
+
+@theme {
+  /* Абсолютно черный фон и глубокие графитовые слои */
+  --color-bg-main: #000000; /* Основной фон (bg-bg-main) */
+  --color-bg-card: #0a0a0a; /* Карточки, приподнятые над фоном (bg-bg-card) */
+  --color-bg-input: #141414; /* Поля ввода, кнопки, выпадающие списки */
+  --color-bg-hover: #1f1f1f; /* Элементы при наведении */
+
+  /* Контуры и границы (очень тонкие и контрастные) */
+  --color-border-subtle: #1c1c1e; /* Деликатные разделители (border-border-subtle) */
+  --color-border-focus: #3a3a3c; /* Активные границы */
+
+  /* Текст с высокой контрастностью */
+  --color-text-primary: #ffffff; /* Чистый белый для заголовков */
+  --color-text-secondary: #a1a1aa; /* Приглушенный серый для обычного текста */
+  --color-text-muted: #52525b; /* Темно-серый для подсказок и подписей */
+
+  /* Премиальный изумрудно-зеленый акцент (типичный для AMOLED-минимализма) */
+  --color-accent: #10b981; /* Классы bg-accent, text-accent */
+  --color-accent-dim: #064e3b; /* Темный акцент для заливки кнопок/тегов */
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-bg-main);
+  color: var(--color-text-primary);
+}

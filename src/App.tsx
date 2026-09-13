@@ -1,13 +1,11 @@
 import "./App.css";
 
+import LayoutMenu from "./components/Layout/layout_menu.tsx";
+
 function App() {
   return (
-    <div className="123">
-      <p>3131</p>
-      <p>31</p>
-      <p>13</p>
-      <p>13</p>
-      <p>13</p>
+    <div className="w-full h-screen flex">
+      <LayoutMenu />
     </div>
   );
 }
