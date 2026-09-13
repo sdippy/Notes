@@ -12,11 +12,6 @@ export default function TopSection() {
     });
   }, []);
 
-  const closeSearch = () => {
-    if (!searchValue.trim()) {
-    }
-  };
-
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Cmd + K на Mac
@@ -61,7 +56,6 @@ export default function TopSection() {
             type="text"
             value={searchValue}
             onChange={(event) => setSearchValue(event.target.value)}
-            onBlur={closeSearch}
             placeholder="Поиск по заметкам"
             className="w-full h-full pl-9 pr-9 text-[14px] placeholder:text-text-secondary hover:placeholder:text-text-primary text-text-primary bg-transparent outline-none border-none ring-0 focus:ring-0 focus:outline-none"
           />
