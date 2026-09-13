@@ -21,7 +21,7 @@ export default function LayoutMenu() {
       </aside>
 
       <div className="relative z-10 ml-64 pt-16">
-        <main className="p-10">
+        <main className="p-8">
           <Outlet />
         </main>
       </div>
