@@ -1,6 +1,6 @@
 export default function NoteCardAdd() {
   return (
-    <div className="flex flex-col gap-8.75 p-5 justify-center border border-dashed border-border-subtle hover:border-border-focus rounded-xl cursor-pointer">
+    <div className="flex flex-col gap-4 p-5 justify-center border border-dashed border-border-subtle hover:border-border-focus rounded-xl cursor-pointer">
       <div className="size-10 rounded-xl bg-bg-input flex items-center justify-center text-accent font-bold text-[20px]">
         +
       </div>
