@@ -1,6 +1,6 @@
 # Notes
 
-Клиентское приложение для работы с личными заметками. Проект построен на React и TypeScript, собирается Vite и использует Tailwind CSS v4 для стилизации.
+Приложение для работы с личными заметками. Проект состоит из React-клиента и ASP.NET Core API с PostgreSQL.
 
 ## Возможности
 
@@ -24,6 +24,8 @@
 
 - Node.js 20 или новее
 - npm
+- .NET SDK 10
+- PostgreSQL
 
 ## Запуск
 
@@ -39,7 +41,28 @@ npm install
 npm run dev
 ```
 
-После запуска приложение доступно по адресу, который выведет Vite в терминале. Все команды выполняются из корневой папки проекта.
+После запуска приложение доступно по адресу, который выведет Vite в терминале. Команды frontend выполняются из корневой папки проекта.
+
+## Backend
+
+Перейдите в `backend/NotesApp.Api`, создайте файл `.env` и укажите:
+
+```dotenv
+DATABASE_CONNECTION=Host=localhost;Port=5432;Database=notes;Username=postgres;Password=your_password
+JWT_SECRET=your_long_random_secret
+```
+
+Запустите API:
+
+```bash
+cd backend/NotesApp.Api
+dotnet restore
+dotnet ef database update
+dotnet run
+```
+
+По умолчанию API доступно на `http://localhost:5165`, а Swagger UI на `/swagger`.
+Подробное описание backend находится в [backend/README.md](backend/README.md).
 
 ## Команды
 
@@ -74,6 +97,6 @@ npm run preview  # Просмотр production-сборки
 │   ├── vite.config.ts      # Конфигурация Vite
 │   ├── tsconfig.app.json   # TypeScript-конфигурация приложения
 │   └── tsconfig.node.json  # TypeScript-конфигурация Vite
-├── backend/                # Серверная часть (заготовка)
+├── backend/                # ASP.NET Core API и миграции PostgreSQL
 └── tests/                  # Автотесты (заготовка)
 ```
