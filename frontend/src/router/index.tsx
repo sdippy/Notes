@@ -1,26 +1,28 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
-import { Suspense } from "react";
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  Navigate,
+  Route,
+} from "react-router-dom";
 
+import AuthPage from "../pages/AuthPage";
+import RegisterPage from "../pages/RegisterPage";
 import LayoutMenu from "../components/Layout/layout_menu";
 import MainNotes from "../pages/MainNotes";
+import { ProtectedRoute } from "./ProtectedRoute";
 
-export const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <LayoutMenu />,
-    children: [
-      {
-        index: true,
-        element: <Navigate to="/MainNotes" replace />,
-      },
-      {
-        path: "MainNotes",
-        element: (
-          <Suspense fallback={<div></div>}>
-            <MainNotes />
-          </Suspense>
-        ),
-      },
-    ],
-  },
-]);
+export const router = createBrowserRouter(
+  createRoutesFromElements(
+    <>
+      <Route path="/login" element={<AuthPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<LayoutMenu />}>
+          <Route index element={<Navigate to="/MainNotes" replace />} />
+          <Route path="/MainNotes" element={<MainNotes />} />
+        </Route>
+      </Route>
+    </>,
+  ),
+);
