@@ -45,12 +45,7 @@ public async Task<ActionResult<AuthResponse>> Register(
 
         await _db.SaveChangesAsync();
 
-        var token = _jwtService.GenerateToken(user);
-
-        return Ok(new AuthResponse
-        {
-            Token = token,
-        });
+        return Ok(await CreateAuthResponse(user));
     }
 [HttpPost("login")]
 public async Task<ActionResult<AuthResponse>> Login(
@@ -67,11 +62,60 @@ public async Task<ActionResult<AuthResponse>> Login(
         if (!passwordValid)
             return Unauthorized("Invalid email or password.");
 
-        var token = _jwtService.GenerateToken(user);
+        return Ok(await CreateAuthResponse(user));
+    }
 
-        return Ok(new AuthResponse
+    [HttpPost("refresh")]
+    public async Task<ActionResult<AuthResponse>> Refresh(RefreshRequest request)
+    {
+        var tokenHash = _jwtService.HashRefreshToken(request.RefreshToken);
+        var storedToken = await _db.RefreshTokens
+            .Include(refreshToken => refreshToken.User)
+            .FirstOrDefaultAsync(refreshToken => refreshToken.TokenHash == tokenHash);
+
+        if (storedToken == null || storedToken.RevokedAt != null || storedToken.ExpiresAt <= DateTime.UtcNow)
         {
-            Token = token,
-        }); 
-    }   
+            return Unauthorized("Invalid or expired refresh token.");
+        }
+
+        storedToken.RevokedAt = DateTime.UtcNow;
+        return Ok(await CreateAuthResponse(storedToken.User));
+    }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout(RefreshRequest request)
+    {
+        var tokenHash = _jwtService.HashRefreshToken(request.RefreshToken);
+        var storedToken = await _db.RefreshTokens
+            .FirstOrDefaultAsync(refreshToken => refreshToken.TokenHash == tokenHash);
+
+        if (storedToken != null && storedToken.RevokedAt == null)
+        {
+            storedToken.RevokedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+        }
+
+        return NoContent();
+    }
+
+    private async Task<AuthResponse> CreateAuthResponse(User user)
+    {
+        var refreshToken = _jwtService.GenerateRefreshToken();
+        _db.RefreshTokens.Add(new RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            TokenHash = _jwtService.HashRefreshToken(refreshToken),
+            CreatedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddDays(JwtService.RefreshTokenLifetimeDays),
+            UserId = user.Id
+        });
+        await _db.SaveChangesAsync();
+
+        return new AuthResponse
+        {
+            Token = _jwtService.GenerateAccessToken(user),
+            RefreshToken = refreshToken,
+            ExpiresIn = JwtService.AccessTokenLifetimeSeconds
+        };
+    }
 }

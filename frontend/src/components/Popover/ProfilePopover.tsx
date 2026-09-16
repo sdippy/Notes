@@ -1,12 +1,36 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLocation, useNavigate } from "react-router-dom";
-import { removeToken } from "@/auth/authStorage";
+import { getRefreshToken, removeToken } from "@/auth/authStorage";
 import { Settings, Inbox, Palette, LogOut } from "lucide-react";
 import { usePopoverMenuStore } from "@/types";
 
 interface ProfilePopoverProps {
   anchorRef: React.RefObject<HTMLButtonElement | null>;
+}
+
+interface MenuItemProps {
+  icon: React.ReactNode;
+  label: string;
+  color: string;
+  isLast?: boolean;
+  onClick?: () => void;
+}
+
+function MenuItem({ icon, label, color, isLast, onClick }: MenuItemProps) {
+  const hoverClasses = isLast
+    ? "hover:bg-red-500/10 hover:text-[#ef4444]"
+    : "hover:bg-bg-hover hover:text-accent";
+
+  return (
+    <button
+      className={`flex items-center gap-2.5 w-full rounded-xl pl-5 pr-5 py-2.5 ${color} ${hoverClasses} cursor-pointer transition-all duration-200`}
+      onClick={onClick}
+    >
+      {icon}
+      <span className="text-[14px]">{label}</span>
+    </button>
+  );
 }
 
 export default function ProfilePopover({ anchorRef }: ProfilePopoverProps) {
@@ -29,7 +53,7 @@ export default function ProfilePopover({ anchorRef }: ProfilePopoverProps) {
     const rect = anchorRef.current.getBoundingClientRect();
 
     setPosition({
-      top: rect.bottom,
+      top: rect.bottom + 20,
       right: window.innerWidth - rect.right,
     });
   }, [isOpen, anchorRef]);
@@ -69,37 +93,21 @@ export default function ProfilePopover({ anchorRef }: ProfilePopoverProps) {
       document.removeEventListener("pointerdown", handleClickOutside);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, close]);
+  }, [isOpen, close, anchorRef]);
 
   //   const avatar = "/Profile_img.jpeg";
 
-  interface MenuItemProps {
-    icon: React.ReactNode;
-    label: string;
-    color: string;
-    isLast?: boolean;
-    onClick?: () => void;
-  }
-
-  function MenuItem({ icon, label, color, isLast, onClick }: MenuItemProps) {
-    const hoverClasses = isLast
-      ? "hover:bg-red-500/10 hover:text-[#ef4444]"
-      : "hover:bg-bg-hover hover:text-accent";
-
-    return (
-      <button
-        className={`flex items-center gap-2.5 w-full rounded-xl pl-5 pr-5 py-2.5 ${color} ${hoverClasses} cursor-pointer transition-all duration-200`}
-        onClick={onClick}
-      >
-        {icon}
-        <span className="text-[14px]">{label}</span>
-      </button>
-    );
-  }
-
   const navigate = useNavigate();
 
-  function handleLogout() {
+  async function handleLogout() {
+    const refreshToken = getRefreshToken();
+    if (refreshToken) {
+      await fetch("/api/Auth/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken }),
+      });
+    }
     removeToken();
     navigate("/login", { replace: true });
   }

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 import { Sparkles, LoaderCircle } from "lucide-react";
 
-import { setToken } from "../auth/authStorage";
+import { setAuthTokens } from "../auth/authStorage";
 import LayoutMenu from "../components/Layout/layout_header";
 
 export default function AuthPage() {
@@ -72,8 +72,9 @@ export default function AuthPage() {
                   );
                 }
 
-                const data: { token: string } = await response.json();
-                setToken(data.token);
+                const data: { token: string; refreshToken: string } =
+                  await response.json();
+                setAuthTokens(data.token, data.refreshToken);
                 navigate("/MainNotes", { replace: true });
               } catch (requestError) {
                 setError(

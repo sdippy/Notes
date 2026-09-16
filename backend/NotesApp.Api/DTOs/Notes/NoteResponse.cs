@@ -1,3 +1,5 @@
+using NotesApp.Api.DTOs.Tags;
+
 namespace NotesApp.Api.DTOs.Notes;
 
 public class NoteResponse
@@ -9,4 +11,5 @@ public class NoteResponse
     public bool IsArchived { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public List<TagResponse> Tags { get; set; } = new();
 }

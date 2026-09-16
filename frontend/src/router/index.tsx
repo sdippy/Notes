@@ -9,6 +9,7 @@ import AuthPage from "../pages/AuthPage";
 import RegisterPage from "../pages/RegisterPage";
 import LayoutMenu from "../components/Layout/layout_menu";
 import MainNotes from "../pages/MainNotes";
+import PageNotFound from "../pages/PageNotFound";
 import { ProtectedRoute } from "./ProtectedRoute";
 
 export const router = createBrowserRouter(
@@ -23,6 +24,8 @@ export const router = createBrowserRouter(
           <Route path="/MainNotes" element={<MainNotes />} />
         </Route>
       </Route>
+
+      <Route path="*" element={<PageNotFound />} />
     </>,
   ),
 );

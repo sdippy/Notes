@@ -48,6 +48,35 @@ POST /api/Auth/register
 POST /api/Auth/login
 ```
 
+Оба endpoint возвращают пару токенов:
+
+```json
+{
+  "token": "<access-token>",
+  "refreshToken": "<refresh-token>",
+  "expiresIn": 3600
+}
+```
+
+Access token действует 1 час. Refresh token хранится в базе в виде SHA-256 хэша
+и действует 30 дней. Для получения новой пары токенов отправьте refresh token:
+
+```text
+POST /api/Auth/refresh
+POST /api/Auth/logout
+```
+
+Тело запроса:
+
+```json
+{
+  "refreshToken": "<refresh-token>"
+}
+```
+
+При обновлении старый refresh token отзывается, поэтому каждый refresh token
+можно использовать только один раз.
+
 Для защищённых endpoints передавайте заголовок:
 
 ```http

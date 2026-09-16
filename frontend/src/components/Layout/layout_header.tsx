@@ -23,20 +23,19 @@ export default function LayoutHeader() {
         </span>
       </div>
       {isAuthenticated() ? (
-        <button
-          aria-label="Open profile"
-          ref={buttonRefProfile}
-          onClick={() => togglePopover("profile")}
-
-          className="flex gap-2 items-center "
-        >
+        <div className="flex gap-2 items-center ">
           <div className="bg-bg-input size-10 rounded-xl flex items-center justify-center text-text-secondary hover:text-text-primary border border-transparent hover:border-border-focus cursor-pointer transition-color duration-200">
             <Bell size={14} />
           </div>
-          <div className="bg-indigo-500 rounded-full size-9 flex items-center justify-center border border-border-subtle hover:border-border-focus cursor-pointer transition-colors duration-200">
+          <button
+            aria-label="Open profile"
+            ref={buttonRefProfile}
+            onClick={() => togglePopover("profile")}
+            className="bg-indigo-500 rounded-full size-9 flex items-center justify-center border border-border-subtle hover:border-border-focus cursor-pointer transition-colors duration-200"
+          >
             Sd
-          </div>
-        </button>
+          </button>
+        </div>
       ) : (
         <div className="flex items-center text-[14px] gap-1 justify-center">
           <span className="text-text-secondary">

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NotesApp.Api.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NotesApp.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260914234802_AddTags")]
+    partial class AddTags
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,35 +59,6 @@ namespace NotesApp.Api.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Notes");
-                });
-
-            modelBuilder.Entity("NotesApp.Api.Models.RefreshToken", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("RevokedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("TokenHash")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("NotesApp.Api.Models.Tag", b =>
@@ -157,17 +131,6 @@ namespace NotesApp.Api.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("NotesApp.Api.Models.RefreshToken", b =>
-                {
-                    b.HasOne("NotesApp.Api.Models.User", "User")
-                        .WithMany("RefreshTokens")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("NotesApp.Api.Models.Tag", b =>
                 {
                     b.HasOne("NotesApp.Api.Models.Note", null)
@@ -200,8 +163,6 @@ namespace NotesApp.Api.Migrations
             modelBuilder.Entity("NotesApp.Api.Models.User", b =>
                 {
                     b.Navigation("Notes");
-
-                    b.Navigation("RefreshTokens");
 
                     b.Navigation("Tags");
                 });

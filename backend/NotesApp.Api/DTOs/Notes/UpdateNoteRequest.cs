@@ -6,4 +6,6 @@ public class UpdateNoteRequest
     public string Content { get; set; } = null!;
     public bool IsPinned { get; set; }
     public bool IsArchived { get; set; }
+    public List<Guid> TagIds { get; set; } = new();
+
 }

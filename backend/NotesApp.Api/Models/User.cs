@@ -8,4 +8,7 @@ public class User
     public string? AvatarFileName { get; set; }
     public DateTime CreatedAt { get; set; }
     public ICollection<Note> Notes { get; set; } = new List<Note>();
+    public ICollection<Tag> Tags { get; set; } = new List<Tag>();
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
 }

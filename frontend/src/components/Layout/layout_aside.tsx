@@ -1,8 +1,38 @@
+import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 
 import { Star, Box, Trash, Shield } from "lucide-react";
 
+import { getTags, type NoteTag } from "@/types";
+
 export default function LayoutAside() {
+  const [noteTags, setNoteTags] = useState<NoteTag[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadNoteTags() {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const data = await getTags();
+
+        setNoteTags(data);
+      } catch {
+        setError("Не удалось загрузить заметки");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadNoteTags();
+  }, []);
+
+  if (isLoading) return <div>12312321</div>;
+
+  if (error) return <div>{error}</div>;
+
   return (
     <div className="w-64 h-full flex flex-col border-r border-border-subtle p-4">
       <button className="w-full bg-accent text-bg-main text-[16px] font-semibold py-2.5 rounded-xl hover:bg-accent-dim hover:text-text-primary transition-colors duration-200 cursor-pointer">
@@ -96,18 +126,18 @@ export default function LayoutAside() {
           КОЛЛЕКЦИИ
         </span>
         <div className="flex flex-col gap-3 text-text-secondary text-[16px]">
-          <span className="flex gap-3 items-center border-b border-transparent hover:text-text-primary hover:border-b-border-focus cursor-pointer transition-all duration-200">
-            <div className="rounded-full size-2 bg-accent"></div>
-            Работа
-          </span>
-          <span className="flex gap-3 items-center border-b border-transparent hover:text-text-primary hover:border-b-border-focus cursor-pointer transition-all duration-200">
-            <div className="rounded-full size-2 bg-accent"></div>
-            Личное
-          </span>
-          <span className="flex gap-3 items-center border-b border-transparent hover:text-text-primary hover:border-b-border-focus cursor-pointer transition-all duration-200">
-            <div className="rounded-full size-2 bg-accent"></div>
-            Идеи
-          </span>
+          {noteTags.slice(0, 10).map((tag) => (
+            <span
+              key={tag.id}
+              className="flex gap-3 items-center border-b border-transparent hover:text-text-primary hover:border-b-border-focus cursor-pointer transition-all duration-200"
+            >
+              <div
+                style={{ backgroundColor: tag.color }}
+                className="rounded-full size-2"
+              ></div>
+              {tag.name}
+            </span>
+          ))}
         </div>
       </div>
       <div className="flex flex-col gap-2 px-[13.5px] py-4 bg-bg-card rounded-xl border border-border-subtle">
