@@ -48,18 +48,19 @@ POST /api/Auth/register
 POST /api/Auth/login
 ```
 
-Оба endpoint возвращают пару токенов:
+Оба endpoint возвращают access token. Refresh token устанавливается сервером
+в защищённую `HttpOnly` cookie:
 
 ```json
 {
   "token": "<access-token>",
-  "refreshToken": "<refresh-token>",
   "expiresIn": 3600
 }
 ```
 
-Access token действует 1 час. Refresh token хранится в базе в виде SHA-256 хэша
-и действует 30 дней. Для получения новой пары токенов отправьте refresh token:
+Access token действует 1 час. Refresh token хранится в базе в виде SHA-256 хэша,
+действует 30 дней и передаётся автоматически через cookie. Для обновления пары
+токенов отправьте запрос без тела:
 
 ```text
 POST /api/Auth/refresh
@@ -68,14 +69,10 @@ POST /api/Auth/logout
 
 Тело запроса:
 
-```json
-{
-  "refreshToken": "<refresh-token>"
-}
-```
+Тело запроса не требуется: cookie отправляется браузером автоматически.
 
 При обновлении старый refresh token отзывается, поэтому каждый refresh token
-можно использовать только один раз.
+можно использовать только один раз. Logout очищает cookie и отзывает токен.
 
 Для защищённых endpoints передавайте заголовок:
 
@@ -119,6 +116,6 @@ NotesApp.Api/
 ├── Data/          # DbContext
 ├── DTOs/          # Запросы и ответы API
 ├── Migrations/    # EF Core migrations
-├── Models/        # User и Note
+├── Models/        # User, Note, Tag и RefreshToken
 └── Services/      # JWT service
 ```

@@ -7,6 +7,6 @@ public class Tag
     public string Color { get; set; } = null!;
     public Guid UserId { get; set; }
     public User User { get; set; } = null!;
-    public ICollection<Tag> Tags { get; set; } = new List<Tag>();
+    public ICollection<Note> Notes { get; set; } = new List<Note>();
 
 }

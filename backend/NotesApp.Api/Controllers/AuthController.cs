@@ -21,8 +21,7 @@ public class AuthController : ControllerBase
     }
 
 [HttpPost("register")]
-public async Task<ActionResult<AuthResponse>> Register(
-    RegisterRequest request)
+public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request)
     {
         var existingUser = await _db.Users
             .FirstOrDefaultAsync(u => u.Email == request.Email);
@@ -30,7 +29,7 @@ public async Task<ActionResult<AuthResponse>> Register(
         if (existingUser != null)
         {
             return Conflict("User with this email already exists.");
-        };
+        }
 
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
@@ -42,14 +41,20 @@ public async Task<ActionResult<AuthResponse>> Register(
         };
 
         _db.Users.Add(user);
-
         await _db.SaveChangesAsync();
 
-        return Ok(await CreateAuthResponse(user));
+        var response = await CreateAuthResponse(user);
+        SetRefreshTokenCookie(response.RefreshToken!);
+
+        return Ok(new AuthResponse
+        {
+            Token = response.Token,
+            ExpiresIn = response.ExpiresIn
+        });
     }
-[HttpPost("login")]
-public async Task<ActionResult<AuthResponse>> Login(
-    LoginRequest request)
+
+    [HttpPost("login")]
+    public async Task<ActionResult<AuthResponse>> Login(LoginRequest request)
     {
         var user = await _db.Users
             .FirstOrDefaultAsync(u => u.Email == request.Email);
@@ -62,13 +67,27 @@ public async Task<ActionResult<AuthResponse>> Login(
         if (!passwordValid)
             return Unauthorized("Invalid email or password.");
 
-        return Ok(await CreateAuthResponse(user));
+        var response = await CreateAuthResponse(user);
+        SetRefreshTokenCookie(response.RefreshToken!);
+
+        return Ok(new AuthResponse
+        {
+            Token = response.Token,
+            ExpiresIn = response.ExpiresIn
+        });
     }
 
     [HttpPost("refresh")]
-    public async Task<ActionResult<AuthResponse>> Refresh(RefreshRequest request)
+    public async Task<ActionResult<AuthResponse>> Refresh()
     {
-        var tokenHash = _jwtService.HashRefreshToken(request.RefreshToken);
+        var refreshToken = Request.Cookies["refresh_token"];
+
+        if (string.IsNullOrWhiteSpace(refreshToken))
+        {
+            return Unauthorized("Missing refresh token.");
+        }
+
+        var tokenHash = _jwtService.HashRefreshToken(refreshToken);
         var storedToken = await _db.RefreshTokens
             .Include(refreshToken => refreshToken.User)
             .FirstOrDefaultAsync(refreshToken => refreshToken.TokenHash == tokenHash);
@@ -79,21 +98,53 @@ public async Task<ActionResult<AuthResponse>> Login(
         }
 
         storedToken.RevokedAt = DateTime.UtcNow;
-        return Ok(await CreateAuthResponse(storedToken.User));
+
+        var newRefreshToken = _jwtService.GenerateRefreshToken();
+        _db.RefreshTokens.Add(new RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            TokenHash = _jwtService.HashRefreshToken(newRefreshToken),
+            CreatedAt = DateTime.UtcNow,
+            ExpiresAt = DateTime.UtcNow.AddDays(JwtService.RefreshTokenLifetimeDays),
+            UserId = storedToken.UserId,
+        });
+
+        await _db.SaveChangesAsync();
+
+        SetRefreshTokenCookie(newRefreshToken);
+
+        return Ok(new AuthResponse
+        {
+            Token = _jwtService.GenerateAccessToken(storedToken.User),
+            ExpiresIn = JwtService.AccessTokenLifetimeSeconds
+        });
     }
 
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout(RefreshRequest request)
+    public async Task<IActionResult> Logout()
     {
-        var tokenHash = _jwtService.HashRefreshToken(request.RefreshToken);
-        var storedToken = await _db.RefreshTokens
-            .FirstOrDefaultAsync(refreshToken => refreshToken.TokenHash == tokenHash);
+        var refreshToken = Request.Cookies["refresh_token"];
 
-        if (storedToken != null && storedToken.RevokedAt == null)
+        if (!string.IsNullOrWhiteSpace(refreshToken))
         {
-            storedToken.RevokedAt = DateTime.UtcNow;
-            await _db.SaveChangesAsync();
+            var tokenHash = _jwtService.HashRefreshToken(refreshToken);
+            var storedToken = await _db.RefreshTokens
+                .FirstOrDefaultAsync(refreshToken => refreshToken.TokenHash == tokenHash);
+
+            if (storedToken != null && storedToken.RevokedAt == null)
+            {
+                storedToken.RevokedAt = DateTime.UtcNow;
+                await _db.SaveChangesAsync();
+            }
         }
+
+        Response.Cookies.Delete("refresh_token", new CookieOptions
+        {
+            Path = "/",
+            HttpOnly = true,
+            SameSite = SameSiteMode.None,
+            Secure = true,
+        });
 
         return NoContent();
     }
@@ -117,5 +168,18 @@ public async Task<ActionResult<AuthResponse>> Login(
             RefreshToken = refreshToken,
             ExpiresIn = JwtService.AccessTokenLifetimeSeconds
         };
+    }
+
+    private void SetRefreshTokenCookie(string token)
+    {
+        Response.Cookies.Append("refresh_token", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Expires = DateTimeOffset.UtcNow.AddDays(JwtService.RefreshTokenLifetimeDays),
+            Path = "/",
+            IsEssential = true,
+        });
     }
 }

@@ -22,6 +22,21 @@ namespace NotesApp.Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("NoteTag", b =>
+                {
+                    b.Property<Guid>("NotesId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TagsId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("NotesId", "TagsId");
+
+                    b.HasIndex("TagsId");
+
+                    b.ToTable("NoteTag");
+                });
+
             modelBuilder.Entity("NotesApp.Api.Models.Note", b =>
                 {
                     b.Property<Guid>("Id")
@@ -101,20 +116,10 @@ namespace NotesApp.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("NoteId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("TagId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("NoteId");
-
-                    b.HasIndex("TagId");
 
                     b.HasIndex("UserId");
 
@@ -146,6 +151,21 @@ namespace NotesApp.Api.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("NoteTag", b =>
+                {
+                    b.HasOne("NotesApp.Api.Models.Note", null)
+                        .WithMany()
+                        .HasForeignKey("NotesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NotesApp.Api.Models.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("NotesApp.Api.Models.Note", b =>
                 {
                     b.HasOne("NotesApp.Api.Models.User", "User")
@@ -170,14 +190,6 @@ namespace NotesApp.Api.Migrations
 
             modelBuilder.Entity("NotesApp.Api.Models.Tag", b =>
                 {
-                    b.HasOne("NotesApp.Api.Models.Note", null)
-                        .WithMany("Tags")
-                        .HasForeignKey("NoteId");
-
-                    b.HasOne("NotesApp.Api.Models.Tag", null)
-                        .WithMany("Tags")
-                        .HasForeignKey("TagId");
-
                     b.HasOne("NotesApp.Api.Models.User", "User")
                         .WithMany("Tags")
                         .HasForeignKey("UserId")
@@ -185,16 +197,6 @@ namespace NotesApp.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("NotesApp.Api.Models.Note", b =>
-                {
-                    b.Navigation("Tags");
-                });
-
-            modelBuilder.Entity("NotesApp.Api.Models.Tag", b =>
-                {
-                    b.Navigation("Tags");
                 });
 
             modelBuilder.Entity("NotesApp.Api.Models.User", b =>

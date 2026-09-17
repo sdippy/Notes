@@ -7,10 +7,13 @@
 - Рабочее пространство «Мои заметки».
 - Регистрация и вход по email и паролю.
 - JWT-аутентификация и защита маршрута `/MainNotes`.
-- Access и refresh token с автоматическим обновлением access token при `401`.
-- Сохранение пары токенов в `localStorage` через `authStorage`.
+- Access token в `localStorage` и refresh token в защищённой `HttpOnly` cookie.
+- Автоматическое обновление access token при `401`.
 - Выход из аккаунта через меню профиля.
 - Popover профиля с закрытием по клику вне компонента, клавише `Escape` и при смене URL.
+- Мобильное burger-меню с drawer-анимацией и адаптивный профильный popover.
+- Пагинация, shimmer-загрузка, empty/error-состояния и меню действий карточки.
+- Удаление заметок с подтверждением через Zustand modal store.
 - Поле поиска по заметкам с фокусом через `Ctrl + K` или `Cmd + K`.
 - Элементы управления фильтрацией по тегам и сортировкой по недавним изменениям.
 - Навигация через React Router.
@@ -80,7 +83,7 @@ dotnet run
 - `/login` — вход в аккаунт;
 - `/register` — создание аккаунта.
 
-Защищённые страницы находятся внутри `ProtectedRoute`. Если JWT отсутствует в `localStorage`, пользователь перенаправляется на `/login`.
+Защищённые страницы находятся внутри `ProtectedRoute`. Если access token отсутствует в `localStorage`, пользователь перенаправляется на `/login`.
 
 Регистрация проверяет на frontend:
 
@@ -88,11 +91,12 @@ dotnet run
 - пароль должен содержать минимум 8 символов;
 - подтверждение пароля должно совпадать с паролем.
 
-После успешного входа или регистрации API возвращает пару access/refresh token.
-Frontend сохраняет её через `setAuthTokens` и перенаправляет пользователя на `/MainNotes`.
-При истечении access token API-клиент вызывает `/api/Auth/refresh`, сохраняет
-новую пару и повторяет исходный запрос. При недействительном refresh token
-пользователь возвращается на `/login`.
+После успешного входа или регистрации API возвращает access token и устанавливает
+refresh token в `HttpOnly` cookie. Frontend сохраняет только access token через
+`setToken` и перенаправляет пользователя на `/MainNotes`.
+При истечении access token API-клиент вызывает `/api/Auth/refresh` с cookie,
+сохраняет новый access token и повторяет исходный запрос. При недействительном
+refresh token пользователь возвращается на `/login`.
 
 Меню профиля доступно авторизованному пользователю. Кнопка открывает `ProfilePopover`, а пункт выхода удаляет оба токена и возвращает пользователя на `/login`.
 
@@ -113,26 +117,25 @@ npm run preview  # Просмотр production-сборки
 - `/MainNotes` — защищённый основной экран заметок.
 
 Подробный ручной план проверки всех пользовательских и API-сценариев находится в [tests/README.md](tests/README.md).
+Описание frontend-слоёв и правил зависимостей находится в [docs/architecture.md](docs/architecture.md).
 
 ## Структура проекта
 
 ```text
-.
-├── package.json           # Зависимости и npm-скрипты
-├── eslint.config.js       # Конфигурация ESLint
-├── tsconfig.json          # Общая конфигурация TypeScript
-├── frontend/
-│   ├── src/
-│   │   ├── App/            # Точка входа и глобальные стили
-│   │   ├── components/     # Компоненты интерфейса
-│   │   ├── pages/          # Страницы приложения
-│   │   ├── router/         # Маршруты
-│   │   └── types/          # Общие типы frontend
-│   ├── public/             # Публичные ресурсы
-│   ├── index.html          # HTML-точка входа
-│   ├── vite.config.ts      # Конфигурация Vite
-│   ├── tsconfig.app.json   # TypeScript-конфигурация приложения
-│   └── tsconfig.node.json  # TypeScript-конфигурация Vite
-├── backend/                # ASP.NET Core API и миграции PostgreSQL
-└── tests/                  # Тест-план и сценарии ручной проверки
+frontend/src/
+├── app/                    # Точка входа, глобальные стили и роутинг
+├── pages/                  # Композиция экранов приложения
+├── widgets/                # Layout, toolbar и profile UI
+├── features/               # Auth, filters и delete-note сценарии
+├── entities/               # Доменные сущности note и tag
+├── shared/                 # API, hooks, types, UI и утилиты
+└── assets/                 # Изображения и статические ресурсы
+
+backend/NotesApp.Api/
+├── Controllers/            # HTTP endpoints
+├── DTOs/                   # Контракты запросов и ответов
+├── Data/                   # EF Core DbContext
+├── Migrations/             # Миграции PostgreSQL
+├── Models/                 # Доменные модели
+└── Services/               # JWT и прикладные сервисы
 ```

@@ -24,7 +24,7 @@ public class NotesController : ControllerBase
 
     // GET: api/notes
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<NoteResponse>>> GetNotes( Guid? tagId)
+    public async Task<ActionResult<NotesListResponse>> GetNotes([FromQuery] NoteFilterRequest filter)
     {
         var userId = GetCurrentUserId();
 
@@ -33,36 +33,103 @@ public class NotesController : ControllerBase
             return Unauthorized();
         }
 
-        var notesQuery = _db.Notes
-            .Where(n => n.UserId == userId.Value);
-
-        if (tagId.HasValue)
+        if (filter == null)
         {
-            notesQuery = notesQuery.Where(n => n.Tags.Any(t => t.Id == tagId.Value));
+            filter = new NoteFilterRequest();
         }
 
-        var notes = await notesQuery
-            .OrderByDescending(n => n.UpdatedAt)
-            .Select(n => new NoteResponse
-            {
-                Id = n.Id,
-                Title = n.Title,
-                Content = n.Content,
-                IsPinned = n.IsPinned,
-                IsArchived = n.IsArchived,
-                CreatedAt = n.CreatedAt,
-                UpdatedAt = n.UpdatedAt,
+        var query = _db.Notes
+            .AsNoTracking()
+            .Where(n => n.UserId == userId.Value)
+            .Include(n => n.Tags)
+            .AsQueryable();
 
-                Tags = n.Tags.Select(t => new TagResponse
-                {
-                    Id = t.Id,
-                    Name = t.Name,
-                    Color = t.Color
-                }).ToList()
-            })
+        if (!string.IsNullOrWhiteSpace(filter.Search))
+        {
+            var search = filter.Search.Trim();
+            var searchLower = search.ToLower();
+
+            query = query.Where(n =>
+                n.Title.ToLower().Contains(searchLower) ||
+                n.Content.ToLower().Contains(searchLower) ||
+                n.Tags.Any(t => t.Name.ToLower().Contains(searchLower)));
+        }
+
+        if (filter.Pinned.HasValue)
+        {
+            query = query.Where(n => n.IsPinned == filter.Pinned.Value);
+        }
+
+        if (filter.Archived.HasValue)
+        {
+            query = query.Where(n => n.IsArchived == filter.Archived.Value);
+        }
+
+        if (filter.TagId.HasValue)
+        {
+            query = query.Where(n => n.Tags.Any(t => t.Id == filter.TagId.Value));
+        }
+
+        if (filter.DateFrom.HasValue)
+        {
+            query = query.Where(n => n.CreatedAt >= filter.DateFrom.Value);
+        }
+
+        if (filter.DateTo.HasValue)
+        {
+            query = query.Where(n => n.CreatedAt <= filter.DateTo.Value);
+        }
+
+        var totalCount = await query.CountAsync();
+
+        var sortBy = filter.SortBy ?? "createdAt";
+        var sortOrder = filter.SortOrder ?? "desc";
+
+        query = sortBy.ToLowerInvariant() switch
+        {
+            "title" => sortOrder.Equals("asc", StringComparison.OrdinalIgnoreCase)
+                ? query.OrderBy(n => n.Title)
+                : query.OrderByDescending(n => n.Title),
+
+            "updatedat" => sortOrder.Equals("asc", StringComparison.OrdinalIgnoreCase)
+                ? query.OrderBy(n => n.UpdatedAt)
+                : query.OrderByDescending(n => n.UpdatedAt),
+
+            _ => sortOrder.Equals("asc", StringComparison.OrdinalIgnoreCase)
+                ? query.OrderBy(n => n.CreatedAt)
+                : query.OrderByDescending(n => n.CreatedAt)
+        };
+
+        var notes = await query
+            .Skip((filter.Page - 1) * filter.PageSize)
+            .Take(filter.PageSize)
             .ToListAsync();
 
-        return Ok(notes);
+        var items = notes.Select(n => new NoteResponse
+        {
+            Id = n.Id,
+            Title = n.Title,
+            Content = n.Content,
+            IsPinned = n.IsPinned,
+            IsArchived = n.IsArchived,
+            CreatedAt = n.CreatedAt,
+            UpdatedAt = n.UpdatedAt,
+            Tags = n.Tags.Select(t => new TagResponse
+            {
+                Id = t.Id,
+                Name = t.Name,
+                Color = t.Color
+            }).ToList()
+        }).ToList();
+
+        return Ok(new NotesListResponse
+        {
+            Items = items,
+            Page = filter.Page,
+            PageSize = filter.PageSize,
+            TotalCount = totalCount,
+            TotalPages = (int)Math.Ceiling(totalCount / (double)filter.PageSize)
+        });
     }
 
     // Get: api/notes/{id}
@@ -77,6 +144,7 @@ public class NotesController : ControllerBase
         }
 
         var note = await _db.Notes
+            .AsNoTracking()
             .Where(n => n.Id == id && n.UserId == userId.Value)
             .Select(n => new NoteResponse
             {
