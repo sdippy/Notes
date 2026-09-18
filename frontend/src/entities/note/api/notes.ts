@@ -87,7 +87,7 @@ export async function deleteNote(noteId: string): Promise<void> {
   }
 }
 
-export async function toggleNotePin(noteId: string): Promise<Note> {
+export async function toggleNotePin(noteId: string): Promise<void> {
   const response = await apiFetch(`/notes/${noteId}/pin`, {
     method: "PATCH",
   });
@@ -105,7 +105,7 @@ export async function toggleNotePin(noteId: string): Promise<Note> {
   }
 }
 
-export async function toggleNoteArchive(noteId: string): Promise<Note> {
+export async function toggleNoteArchive(noteId: string): Promise<void> {
   const response = await apiFetch(`/notes/${noteId}/archive`, {
     method: "PATCH",
   });

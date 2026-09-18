@@ -140,7 +140,10 @@ export default function NoteCard({ note, animationDelay = 0 }: NoteCardType) {
               <button
                 type="button"
                 disabled={isPending}
-                onClick={() => togglePin(note.id)}
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  togglePin(note.id);
+                }}
                 className={`flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-[13px] transition-colors ${
                   isPending ? "cursor-wait opacity-60" : "cursor-pointer"
                 } ${

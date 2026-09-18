@@ -82,22 +82,23 @@ public class NotesController : ControllerBase
 
         var totalCount = await query.CountAsync();
 
-        var sortBy = filter.SortBy ?? "createdAt";
+        var sortBy = filter.SortBy ?? "createdat";
         var sortOrder = filter.SortOrder ?? "desc";
+        var isAsc = sortOrder.Equals("asc", StringComparison.OrdinalIgnoreCase);
 
         query = sortBy.ToLowerInvariant() switch
         {
-            "title" => sortOrder.Equals("asc", StringComparison.OrdinalIgnoreCase)
-                ? query.OrderBy(n => n.Title)
-                : query.OrderByDescending(n => n.Title),
+            "title" => isAsc
+                ? query.OrderByDescending(n => n.IsPinned).ThenBy(n => n.Title)
+                : query.OrderByDescending(n => n.IsPinned).ThenByDescending(n => n.Title),
 
-            "updatedat" => sortOrder.Equals("asc", StringComparison.OrdinalIgnoreCase)
-                ? query.OrderBy(n => n.UpdatedAt)
-                : query.OrderByDescending(n => n.UpdatedAt),
+            "updatedat" => isAsc
+                ? query.OrderByDescending(n => n.IsPinned).ThenBy(n => n.UpdatedAt)
+            : query.OrderByDescending(n => n.IsPinned).ThenByDescending(n => n.UpdatedAt),
 
-            _ => sortOrder.Equals("asc", StringComparison.OrdinalIgnoreCase)
-                ? query.OrderBy(n => n.CreatedAt)
-                : query.OrderByDescending(n => n.CreatedAt)
+            _ => isAsc
+                ? query.OrderByDescending(n => n.IsPinned).ThenBy(n => n.CreatedAt)
+                : query.OrderByDescending(n => n.IsPinned).ThenByDescending(n => n.CreatedAt)
         };
 
         var notes = await query
