@@ -79,7 +79,7 @@ export default function ArchiveNoteModal() {
                 Удалить заметку?
               </h2>
               <p className="mt-2 text-[13px] leading-5 text-text-secondary">
-                «{noteTitle}» будет удалена без возможности восстановления.
+                «{noteTitle}» будет удалена и добавлена в корзину.
               </p>
             </div>
           </div>

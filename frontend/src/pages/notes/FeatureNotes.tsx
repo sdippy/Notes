@@ -5,12 +5,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { getNotes, getTags, type NoteFilters } from "@/shared/types";
 import NoteList from "@/entities/note/ui/NoteList";
 import NotesToolbar from "@/widgets/notes-toolbar/ui/NotesToolbar";
-import PageNavButton from "@/shared/ui/page-nav-button/PageNavButton";
 import { useDebouncedSearch } from "@/shared/hooks/useDebouncedSearch";
 import { useNotesFilters } from "@/features/notes-filter/model/useNotesFilters";
-import { formatMiddleTimeAgoRu } from "@/shared/lib/date/formatTimeAgo";
 
-export default function MainNotes() {
+export default function FeatureNotes() {
   const {
     searchValue,
     setSearchValue,
@@ -39,6 +37,7 @@ export default function MainNotes() {
     tagId: selectedTagId === "all" ? undefined : selectedTagId,
     sortBy,
     sortOrder,
+    pinned: true,
     archived: false,
     page,
     pageSize: 10,
@@ -53,13 +52,6 @@ export default function MainNotes() {
   const notes = data?.items ?? [];
   const totalPages = data?.totalPages ?? 1;
   const filterKey = `${debouncedSearch}|${selectedTagId}|${sortBy}|${sortOrder}`;
-  const latestUpdatedAt = notes.reduce<string | null>((latest, note) => {
-    if (!latest || new Date(note.updatedAt) > new Date(latest)) {
-      return note.updatedAt;
-    }
-
-    return latest;
-  }, null);
 
   const previousFilterKey = useRef(filterKey);
 
@@ -100,12 +92,12 @@ export default function MainNotes() {
     const mod100 = count % 100;
 
     if (mod10 === 1 && mod100 != 11) {
-      return "заметка, последнее изменение";
+      return "заметка, которая поможет держать фокус.";
     }
     if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
-      return "заметки, последнее изменение";
+      return "заметки, которые помогут держать фокус.";
     }
-    return "заметок, последнее изменение";
+    return "заметок, которые помогут держать фокус.";
   };
 
   return (
@@ -117,22 +109,13 @@ export default function MainNotes() {
           </h2>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-2">
-              <h1 className="text-[24px] font-bold">Мои заметки</h1>
+              <h1 className="text-[24px] font-bold">Избранные заметки</h1>
               <span className="text-[14px] text-text-secondary">
                 {data?.totalCount ?? notes.length} {getNotesText(notes.length)}
-                {latestUpdatedAt
-                  ? formatMiddleTimeAgoRu(latestUpdatedAt)
-                  : "нет данных"}
               </span>
             </div>
-            <PageNavButton
-              to="/"
-              className="w-full border border-accent/40 bg-accent px-5 py-2.5 text-[15px] font-semibold text-bg-main shadow-[0_0_24px_rgba(16,185,129,0.12)] hover:border-accent hover:bg-accent-dim hover:text-text-primary sm:w-auto"
-              label={"+ Создать заметку"}
-            />
           </div>
         </div>
-
         <NotesToolbar
           searchValue={searchValue}
           selectedTagId={selectedTagId}
@@ -148,11 +131,12 @@ export default function MainNotes() {
           onSortChange={handleSortChange}
         />
       </div>
+
       <NoteList
         notes={notes}
         isLoading={isLoading}
         errorMessage={isError ? error.message : undefined}
-        addCard
+        addCard={false}
       />
       {totalPages > 1 && (
         <nav

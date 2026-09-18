@@ -68,7 +68,7 @@ export default function NotesToolbar({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-3 *:h-11">
-        <div className="relative flex h-11 min-w-0 w-full flex-1 items-center rounded-xl border border-border-subtle bg-bg-input/80 text-text-secondary shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] backdrop-blur-sm transition-all duration-200 hover:border-border-focus hover:text-text-primary hover:shadow-[0_0_0_1px_rgba(16,185,129,0.10)] focus-within:border-accent/60 focus-within:shadow-[0_0_0_1px_rgba(16,185,129,0.18)] cursor-pointer sm:min-w-[16.25rem]">
+        <div className="relative flex h-11 min-w-0 w-full flex-1 items-center rounded-xl border border-border-subtle bg-bg-input/80 text-text-secondary shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] backdrop-blur-sm transition-all duration-200 hover:border-border-focus hover:text-text-primary hover:shadow-[0_0_0_1px_rgba(16,185,129,0.10)] focus-within:border-accent/60 focus-within:shadow-[0_0_0_1px_rgba(16,185,129,0.18)] cursor-pointer sm:min-w-65">
           <Search size={15} className="absolute left-3 pointer-events-none" />
 
           <input

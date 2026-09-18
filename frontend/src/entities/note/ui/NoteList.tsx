@@ -6,11 +6,13 @@ type NoteListProps = {
   notes: Note[];
   isLoading?: boolean;
   errorMessage?: string;
+  addCard?: boolean;
 };
 
 export default function NoteList({
   notes,
   isLoading = false,
+  addCard,
   errorMessage,
 }: NoteListProps) {
   if (errorMessage) {
@@ -74,7 +76,7 @@ export default function NoteList({
           <NoteCard key={note.id} note={note} animationDelay={index * 55} />
         ))
       )}
-      <NoteCardAdd />
+      {addCard && <NoteCardAdd />}
     </div>
   );
 }

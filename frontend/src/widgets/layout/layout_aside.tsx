@@ -68,7 +68,7 @@ export default function LayoutAside({ onNavigate }: LayoutAsideProps) {
         </NavLink>
 
         <NavLink
-          to=""
+          to="/Feature"
           onClick={onNavigate}
           className={({ isActive }) =>
             `flex items-center justify-between w-full py-2.5 px-[13.5px] rounded-xl cursor-pointer transition-all duration-200 ease-out
@@ -95,7 +95,7 @@ export default function LayoutAside({ onNavigate }: LayoutAsideProps) {
           )}
         </NavLink>
         <NavLink
-          to=""
+          to="/MainNotes"
           onClick={onNavigate}
           className={({ isActive }) =>
             `flex items-center justify-between w-full py-2.5 px-[13.5px] rounded-xl cursor-pointer transition-all duration-200 ease-out
