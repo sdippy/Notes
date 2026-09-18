@@ -94,8 +94,6 @@ export default function NoteCard({ note, animationDelay = 0 }: NoteCardType) {
     ? words.slice(0, maxWords).join(" ") + "..."
     : note.content;
 
-  const tag = note.tags?.[0];
-
   const { togglePin, isPending } = useToggleNotePin();
 
   return (
@@ -104,18 +102,22 @@ export default function NoteCard({ note, animationDelay = 0 }: NoteCardType) {
       className="flex animate-[note-reveal_450ms_ease-out_both] cursor-pointer flex-col gap-4 rounded-xl border border-border-subtle bg-bg-card p-5 transition-all duration-200 hover:-translate-y-1 hover:border-accent/40 hover:shadow-[0_10px_35px_rgba(16,185,129,0.08)]"
     >
       <div className="grid grid-cols-2">
-        <div className="flex gap-2 items-center">
-          {tag && (
-            <>
-              <div
-                style={{ backgroundColor: tag.color }}
-                className="size-2.5 rounded-full"
-              ></div>
-              <h2 className="rounded-md border border-border-subtle bg-bg-input/70 px-2 py-1 text-[12px] font-semibold text-text-primary">
-                {tag.name}
-              </h2>
-            </>
-          )}
+        <div className="flex flex-wrap gap-3 items-center">
+          {note.tags &&
+            note.tags.map((tag) => (
+              <div key={tag.id} className="flex gap-1.5 items-center">
+                {/* Цветной кружок */}
+                <div
+                  style={{ backgroundColor: tag.color }}
+                  className="size-2 rounded-full shrink-0"
+                ></div>
+
+                {/* Плашка с названием тега */}
+                <h2 className="rounded-md border border-border-subtle bg-bg-input/70 px-2 py-0.5 text-[12px] font-semibold text-text-primary">
+                  {tag.name}
+                </h2>
+              </div>
+            ))}
         </div>
 
         <div ref={menuRef} className="relative col-start-2">

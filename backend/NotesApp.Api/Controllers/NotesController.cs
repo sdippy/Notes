@@ -175,19 +175,25 @@ public class NotesController : ControllerBase
 
     // POST: api/notes
     [HttpPost]
-    public async Task<ActionResult<NoteResponse>> CreateNote(
-        CreateNoteRequest request)
+    public async Task<ActionResult<NoteResponse>> CreateNote(CreateNoteRequest request)
     {
         var userId = GetCurrentUserId();
 
         if (userId == null)
-            return Unauthorized();
+        return Unauthorized();
+
+        if (request.TagIds != null && request.TagIds.Count > 3)
+        {
+            return BadRequest("A note cannot have more than 3 tags.");
+        }
+
+        var uniqueTagIds = request.TagIds?.Distinct().ToList() ?? new List<Guid>();
 
         var tags = await _db.Tags
-            .Where(t => request.TagIds.Contains(t.Id) && t.UserId == userId.Value)
+            .Where(t => uniqueTagIds.Contains(t.Id) && t.UserId == userId.Value)
             .ToListAsync();
 
-        if (tags.Count != request.TagIds.Count)
+        if (tags.Count != uniqueTagIds.Count)
         {
             return BadRequest("One or more tags do not exist or do not belong to the user.");
         }
@@ -205,13 +211,12 @@ public class NotesController : ControllerBase
             UpdatedAt = now,
             UserId = userId.Value,
             Tags = tags
-
         };
 
-        _db.Notes.Add(note);
-        await _db.SaveChangesAsync();
+         _db.Notes.Add(note);
+         await _db.SaveChangesAsync();
 
-        var response = new NoteResponse
+         var response = new NoteResponse
         {
             Id = note.Id,
             Title = note.Title,
@@ -220,45 +225,61 @@ public class NotesController : ControllerBase
             IsArchived = note.IsArchived,
             CreatedAt = note.CreatedAt,
             UpdatedAt = note.UpdatedAt,
-
             Tags = note.Tags.Select(t => new TagResponse
             {
                 Id = t.Id,
                 Name = t.Name,
                 Color = t.Color
             }).ToList()
-        };
+     };
 
         return CreatedAtAction(nameof(GetNotes), new { id = note.Id }, response);
     }
 
+
     // PUT: api/notes/{id}
     [HttpPut("{id}")]
-    public async Task<ActionResult<NoteResponse>> UpdateNote(
-        Guid id, UpdateNoteRequest request)
+    public async Task<ActionResult<NoteResponse>> UpdateNote(Guid id, UpdateNoteRequest request)
     {
         var userId = GetCurrentUserId();
 
         if (userId == null)
             return Unauthorized();
 
+        if (request.TagIds != null && request.TagIds.Count > 3)
+        {
+            return BadRequest("A note cannot have more than 3 tags.");
+        }
+
         var note = await _db.Notes
-            .Include(n => n.Tags)
+            .Include(n => n.Tags) 
             .FirstOrDefaultAsync(n => n.Id == id && n.UserId == userId.Value);
 
         if (note == null)
             return NotFound();
 
+        var uniqueTagIds = request.TagIds?.Distinct().ToList() ?? new List<Guid>();
+
         var tags = await _db.Tags
-            .Where(t => request.TagIds.Contains(t.Id) && t.UserId == userId.Value)
+            .Where(t => uniqueTagIds.Contains(t.Id) && t.UserId == userId.Value)
             .ToListAsync();
+
+        if (tags.Count != uniqueTagIds.Count)
+        {
+            return BadRequest("One or more tags do not exist or do not belong to the user.");
+        }
 
         note.Title = request.Title;
         note.Content = request.Content;
         note.IsPinned = request.IsPinned;
         note.IsArchived = request.IsArchived;
         note.UpdatedAt = DateTime.UtcNow;
-        note.Tags = tags;
+
+        note.Tags.Clear(); 
+        foreach (var tag in tags)
+        {
+            note.Tags.Add(tag); 
+        }
 
         await _db.SaveChangesAsync();
 
@@ -281,6 +302,7 @@ public class NotesController : ControllerBase
 
         return Ok(response);
     }
+
 
  // Patch: api/notes/{id}/pin
     [HttpPatch("{id:guid}/pin")]
