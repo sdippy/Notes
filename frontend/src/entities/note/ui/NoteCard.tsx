@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Ellipsis, Pencil, Star, Trash2 } from "lucide-react";
-import { useDeleteNoteModalStore } from "@/features/note-delete/deleteNoteModalStore";
-import { type Note, formatMiddleTimeAgoRu } from "@/shared/types";
+import { useArchiveNoteModalStore } from "@/features/note-archive/archiveNoteModalStore";
+import {
+  type Note,
+  formatMiddleTimeAgoRu,
+  useToggleNotePin,
+} from "@/shared/types";
 
 interface NoteCardType {
   note: Note;
@@ -45,11 +49,15 @@ function NoteMeta({
   );
 }
 
+function NotePinMeta({ isPinned }: { isPinned: boolean }) {
+  return isPinned ? "Открепить" : "Закрепить";
+}
+
 export default function NoteCard({ note, animationDelay = 0 }: NoteCardType) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const openDeleteModal = useDeleteNoteModalStore(
-    (state) => state.openDeleteModal,
+  const openArchiveModal = useArchiveNoteModalStore(
+    (state) => state.openArchiveModal,
   );
 
   useEffect(() => {
@@ -87,6 +95,8 @@ export default function NoteCard({ note, animationDelay = 0 }: NoteCardType) {
     : note.content;
 
   const tag = note.tags?.[0];
+
+  const { togglePin, isPending } = useToggleNotePin();
 
   return (
     <div
@@ -129,6 +139,27 @@ export default function NoteCard({ note, animationDelay = 0 }: NoteCardType) {
             <div className="absolute right-0 top-10 z-20 min-w-44 overflow-hidden rounded-xl border border-border-subtle bg-bg-input/95 p-1 shadow-[0_16px_40px_rgba(0,0,0,0.4)] backdrop-blur-xl">
               <button
                 type="button"
+                disabled={isPending}
+                onClick={() => togglePin(note.id)}
+                className={`flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-[13px] transition-colors ${
+                  isPending ? "cursor-wait opacity-60" : "cursor-pointer"
+                } ${
+                  note.isPinned
+                    ? "bg-accent/10 text-accent font-medium hover:bg-accent/20"
+                    : "text-accent/80 hover:bg-accent/10 hover:text-accent"
+                }`}
+              >
+                <Star
+                  size={14}
+                  className={
+                    note.isPinned ? "fill-accent text-accent" : "text-accent/80"
+                  }
+                />
+                <NotePinMeta isPinned={note.isPinned} />
+              </button>
+
+              <button
+                type="button"
                 disabled
                 title="Редактирование пока недоступно"
                 className="flex w-full cursor-not-allowed items-center gap-2 rounded-lg px-3 py-2.5 text-left text-[13px] text-text-muted opacity-60"
@@ -140,7 +171,7 @@ export default function NoteCard({ note, animationDelay = 0 }: NoteCardType) {
                 type="button"
                 onClick={() => {
                   setIsMenuOpen(false);
-                  openDeleteModal(note.id, note.title);
+                  openArchiveModal(note.id, note.title);
                 }}
                 className="flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2.5 text-left text-[13px] text-red-300 transition-colors hover:bg-red-400/10 hover:text-red-200"
               >

@@ -4,7 +4,7 @@ import { useMobileMenuStore } from "@/shared/types";
 
 import LayoutHeader from "./layout_header.tsx";
 import LayoutAside from "./layout_aside.tsx";
-import DeleteNoteModal from "@/features/note-delete/ui/DeleteNoteModal";
+import ArchiveNoteModal from "@/features/note-archive/ui/ArchiveNoteModal";
 
 export default function LayoutMenu() {
   const { isOpen: isMobileMenuOpen, closeMobileMenu } = useMobileMenuStore();
@@ -69,7 +69,7 @@ export default function LayoutMenu() {
           <Outlet />
         </main>
       </div>
-      <DeleteNoteModal />
+      <ArchiveNoteModal />
     </div>
   );
 }

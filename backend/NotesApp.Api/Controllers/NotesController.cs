@@ -281,6 +281,88 @@ public class NotesController : ControllerBase
         return Ok(response);
     }
 
+ // Patch: api/notes/{id}/pin
+    [HttpPatch("{id:guid}/pin")]
+    public async Task<ActionResult<NoteResponse>> TogglePin(Guid id)
+    {
+        var userId = GetCurrentUserId();
+
+        if (userId == null)
+            return Unauthorized();
+
+        var note = await _db.Notes
+            .Include(n => n.Tags)
+            .FirstOrDefaultAsync(n => n.Id == id && n.UserId == userId.Value);
+
+        if (note == null)
+            return NotFound();
+
+        note.IsPinned = !note.IsPinned;
+        note.UpdatedAt = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync();
+
+        var response = new NoteResponse
+        {
+            Id = note.Id,
+            Title = note.Title,
+            Content = note.Content,
+            IsPinned = note.IsPinned,
+            IsArchived = note.IsArchived,
+            CreatedAt = note.CreatedAt,
+            UpdatedAt = note.UpdatedAt,
+            Tags = note.Tags.Select(t => new TagResponse
+            {
+                Id = t.Id,
+                Name = t.Name,
+                Color = t.Color
+            }).ToList()
+        };
+
+        return Ok(response);
+    }
+
+    // Patch: api/notes/{id}/archive
+    [HttpPatch("{id:guid}/archive")]
+    public async Task<ActionResult<NoteResponse>> ToggleArchive(Guid id)
+    {
+        var userId = GetCurrentUserId();
+
+        if (userId == null)
+            return Unauthorized();
+
+        var note = await _db.Notes
+            .Include(n => n.Tags)
+            .FirstOrDefaultAsync(n => n.Id == id && n.UserId == userId.Value);
+
+        if (note == null)
+            return NotFound();
+
+        note.IsArchived = !note.IsArchived;
+        note.UpdatedAt = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync();
+
+        var response = new NoteResponse
+        {
+            Id = note.Id,
+            Title = note.Title,
+            Content = note.Content,
+            IsPinned = note.IsPinned,
+            IsArchived = note.IsArchived,
+            CreatedAt = note.CreatedAt,
+            UpdatedAt = note.UpdatedAt,
+            Tags = note.Tags.Select(t => new TagResponse
+            {
+                Id = t.Id,
+                Name = t.Name,
+                Color = t.Color
+            }).ToList()
+        };
+
+        return Ok(response);
+    }
+
     // DELETE: api/notes/{id}
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteNote(Guid id)

@@ -8,8 +8,9 @@ export { getTags } from "@/entities/tag/api/tags";
 
 // Zustand Store
 export * from "@/widgets/profile/popoverStore";
-export * from "@/features/note-delete/deleteNoteModalStore";
+export * from "@/features/note-archive/archiveNoteModalStore";
 export * from "@/widgets/layout/mobileMenuStore";
 
 // Utils
 export * from "@/shared/lib/date/formatTimeAgo";
+export * from "@/shared/lib/note/useNoteAction";

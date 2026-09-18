@@ -3,13 +3,13 @@ import { createPortal } from "react-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Trash2, X } from "lucide-react";
 
-import { deleteNote } from "@/entities/note/api/notes";
-import { useDeleteNoteModalStore } from "@/features/note-delete/deleteNoteModalStore";
+import { toggleNoteArchive } from "@/entities/note/api/notes";
+import { useArchiveNoteModalStore } from "@/features/note-archive/archiveNoteModalStore";
 
-export default function DeleteNoteModal() {
-  const { isOpen, noteId, noteTitle, closeDeleteModal } =
-    useDeleteNoteModalStore();
-  const { errorMessage, setDeleteError } = useDeleteNoteModalStore();
+export default function ArchiveNoteModal() {
+  const { isOpen, noteId, noteTitle, closeArchiveModal } =
+    useArchiveNoteModalStore();
+  const { errorMessage, setArchiveError } = useArchiveNoteModalStore();
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
@@ -18,17 +18,17 @@ export default function DeleteNoteModal() {
         throw new Error("Заметка не выбрана");
       }
 
-      return deleteNote(noteId);
+      return toggleNoteArchive(noteId);
     },
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["notes"] }),
         queryClient.invalidateQueries({ queryKey: ["notes-count"] }),
       ]);
-      closeDeleteModal();
+      closeArchiveModal();
     },
     onError: (error) => {
-      setDeleteError(
+      setArchiveError(
         error instanceof Error ? error.message : "Не удалось удалить заметку",
       );
     },
@@ -41,13 +41,13 @@ export default function DeleteNoteModal() {
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && !deleteMutation.isPending) {
-        closeDeleteModal();
+        closeArchiveModal();
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [closeDeleteModal, deleteMutation.isPending, isOpen]);
+  }, [closeArchiveModal, deleteMutation.isPending, isOpen]);
 
   if (!isOpen || !noteId) {
     return null;
@@ -55,11 +55,11 @@ export default function DeleteNoteModal() {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex animate-[modal-backdrop-in_180ms_ease-out_both] items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-100 flex animate-[modal-backdrop-in_180ms_ease-out_both] items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget && !deleteMutation.isPending) {
-          closeDeleteModal();
+          closeArchiveModal();
         }
       }}
     >
@@ -87,7 +87,7 @@ export default function DeleteNoteModal() {
             type="button"
             aria-label="Закрыть окно подтверждения"
             disabled={deleteMutation.isPending}
-            onClick={closeDeleteModal}
+            onClick={closeArchiveModal}
             className="cursor-pointer rounded-lg p-1 text-text-secondary transition-colors hover:bg-bg-hover hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-40"
           >
             <X size={18} />
@@ -104,7 +104,7 @@ export default function DeleteNoteModal() {
           <button
             type="button"
             disabled={deleteMutation.isPending}
-            onClick={closeDeleteModal}
+            onClick={closeArchiveModal}
             className="cursor-pointer rounded-xl border border-border-subtle px-4 py-2.5 text-[13px] font-medium text-text-secondary transition-colors hover:border-border-focus hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-40"
           >
             Отмена
@@ -113,7 +113,7 @@ export default function DeleteNoteModal() {
             type="button"
             disabled={deleteMutation.isPending}
             onClick={() => {
-              setDeleteError(null);
+              setArchiveError(null);
               deleteMutation.mutate();
             }}
             className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-2.5 text-[13px] font-medium text-red-300 transition-colors hover:bg-red-400/20 hover:text-red-200 disabled:cursor-wait disabled:opacity-60"

@@ -86,3 +86,39 @@ export async function deleteNote(noteId: string): Promise<void> {
     );
   }
 }
+
+export async function toggleNotePin(noteId: string): Promise<Note> {
+  const response = await apiFetch(`/notes/${noteId}/pin`, {
+    method: "PATCH",
+  });
+
+  // A stale card can refer to a note that was already removed elsewhere.
+  if (response.status === 404) {
+    return;
+  }
+
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(
+      details || `Не удалось закрепить заметку (HTTP ${response.status})`,
+    );
+  }
+}
+
+export async function toggleNoteArchive(noteId: string): Promise<Note> {
+  const response = await apiFetch(`/notes/${noteId}/archive`, {
+    method: "PATCH",
+  });
+
+  // A stale card can refer to a note that was already removed elsewhere.
+  if (response.status === 404) {
+    return;
+  }
+
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(
+      details || `Не удалось архивировать заметку (HTTP ${response.status})`,
+    );
+  }
+}
