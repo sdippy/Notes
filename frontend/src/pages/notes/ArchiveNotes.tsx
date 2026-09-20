@@ -5,9 +5,13 @@ import { ChevronLeft, ChevronRight, Trash2, Clock } from "lucide-react";
 import { getNotes, type NoteFilters } from "@/shared/types";
 import NoteArchiveList from "@/entities/note/ui/NotesArchive/NoteArchiveList";
 import { useNotesFilters } from "@/features/notes-filter/model/useNotesFilters";
-import PageNavButton from "@/shared/ui/page-nav-button/PageNavButton";
+import { useArchiveNoteModalStore } from "@/features/note-archive/archiveNoteModalStore";
 
 export default function ArchiveNotes() {
+  const openArchiveModal = useArchiveNoteModalStore(
+    (state) => state.openArchiveModal,
+  );
+
   const { sortBy, sortOrder } = useNotesFilters();
 
   const [page, setPage] = useState(1);
@@ -64,12 +68,29 @@ export default function ArchiveNotes() {
             </div>
 
             {notes.length > 0 && (
-              <PageNavButton
-                to="/"
-                className="w-full border border-border-subtle bg-bg-input px-5 py-2.5 text-[15px] font-semibold text-text-secondary shadow-[0_0_24px_rgba(16,185,129,0.12)] hover:border-red-400/30 hover:bg-red-400/20 hover:text-red-200 disabled:cursor-wait disabled:opacity-60 sm:w-auto"
-                icon={<Trash2 size={18} />}
-                label="Очистить корзину"
-              />
+              // <PageNavButton
+              //   onClick={() => {
+              //     openArchiveModal({
+              //       isArchiving: true,
+              //     });
+              //   }}
+              //   className="w-full border border-border-subtle bg-bg-input px-5 py-2.5 text-[15px] font-semibold text-text-secondary shadow-[0_0_24px_rgba(16,185,129,0.12)] hover:border-red-400/30 hover:bg-red-400/20 hover:text-red-200 disabled:cursor-wait disabled:opacity-60 sm:w-auto"
+              //   icon={<Trash2 size={18} />}
+              //   label="Очистить корзину"
+              // />
+              <button
+                type="button"
+                onClick={() => {
+                  openArchiveModal({
+                    noteId: 1,
+                    isClearingTrash: true,
+                  });
+                }}
+                className="inline-flex items-center gap-2 justify-center rounded-xl transition-all duration-200 cursor-pointer w-full border border-border-subtle bg-bg-input px-5 py-2.5 text-[15px] font-semibold text-text-secondary shadow-[0_0_24px_rgba(16,185,129,0.12)] hover:border-red-400/30 hover:bg-red-400/20 hover:text-red-200 disabled:cursor-wait disabled:opacity-60 sm:w-auto"
+              >
+                <Trash2 size={18} />
+                Очистить корзину
+              </button>
             )}
             <div className="flex sm:hidden items-center bg-bg-card border-border-subtle gap-3 p-5 rounded-xl border-subtle">
               <div className="size-10 bg-accent-dim rounded-xl flex justify-center items-center text-accent">

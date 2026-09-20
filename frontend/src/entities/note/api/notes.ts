@@ -86,6 +86,23 @@ export async function deleteNote(noteId: string): Promise<void> {
   }
 }
 
+export async function deleteArchivedNotes() {
+  const response = await apiFetch(`/notes/archived`, {
+    method: "DELETE",
+  });
+
+  if (response.status === 404) {
+    return;
+  }
+
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(
+      details || `Не удалось удалить заметки (HTTP ${response.status})`,
+    );
+  }
+}
+
 export async function toggleNotePin(noteId: string): Promise<void> {
   const response = await apiFetch(`/notes/${noteId}/pin`, {
     method: "PATCH",

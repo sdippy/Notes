@@ -407,6 +407,30 @@ public class NotesController : ControllerBase
         return NoContent();
     }
 
+    // DELETE: api/notes/{archived}
+    [HttpDelete("archived")]
+    public async Task<IActionResult> DeleteArchivedNotes(Guid id)
+    {
+        var userId = GetCurrentUserId();
+
+        if (userId == null)
+            return Unauthorized();
+
+        var note = await _db.Notes
+            .Where(note =>
+                note.UserId == userId.Value &&
+                note.IsArchived)
+            .ToListAsync();
+
+        if (note.Count == 0)
+            return NoContent();
+
+        _db.Notes.RemoveRange(note);
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+    }
+
     private Guid? GetCurrentUserId()
     {
         var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier)

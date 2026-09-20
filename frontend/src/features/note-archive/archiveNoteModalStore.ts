@@ -1,16 +1,18 @@
 import { create } from "zustand";
 
 type OpenModalPayload = {
-  noteId: string;
-  noteTitle: string;
+  noteId?: string;
+  noteTitle?: string;
   isDeleting?: boolean;
   isArchiving?: boolean;
+  isClearingTrash?: boolean;
 };
 
 type ArchiveNoteModalState = {
   isOpen: boolean;
   isDeleting: boolean;
   isArchiving: boolean;
+  isClearingTrash: boolean;
   noteId: string | null;
   noteTitle: string;
   errorMessage: string | null;
@@ -24,6 +26,7 @@ export const useArchiveNoteModalStore = create<ArchiveNoteModalState>(
     isOpen: false,
     isDeleting: false,
     isArchiving: false,
+    isClearingTrash: false,
     noteId: null,
     noteTitle: "",
     errorMessage: null,
@@ -33,6 +36,7 @@ export const useArchiveNoteModalStore = create<ArchiveNoteModalState>(
       noteTitle,
       isDeleting,
       isArchiving = false,
+      isClearingTrash = false,
     }) =>
       set({
         isOpen: true,
@@ -40,6 +44,7 @@ export const useArchiveNoteModalStore = create<ArchiveNoteModalState>(
         noteTitle,
         isDeleting,
         isArchiving,
+        isClearingTrash,
         errorMessage: null,
       }),
 
@@ -48,6 +53,7 @@ export const useArchiveNoteModalStore = create<ArchiveNoteModalState>(
         isOpen: false,
         isDeleting: false,
         isArchiving: false,
+        isClearingTrash: false,
         noteId: null,
         noteTitle: "",
         errorMessage: null,
