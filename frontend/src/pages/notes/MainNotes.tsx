@@ -119,7 +119,7 @@ export default function MainNotes() {
             <div className="flex flex-col gap-2">
               <h1 className="text-[24px] font-bold">Мои заметки</h1>
               <span className="text-[14px] text-text-secondary">
-                {data?.totalCount ?? notes.length} {getNotesText(notes.length)}
+                {data?.totalCount ?? notes.length} {getNotesText(notes.length)}{" "}
                 {latestUpdatedAt
                   ? formatMiddleTimeAgoRu(latestUpdatedAt)
                   : "нет данных"}

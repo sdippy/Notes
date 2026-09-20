@@ -1,14 +1,20 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Trash2, X } from "lucide-react";
+import { AlertTriangle, Trash2, X, ArchiveRestore } from "lucide-react";
 
-import { toggleNoteArchive } from "@/entities/note/api/notes";
+import { toggleNoteArchive, deleteNote } from "@/entities/note/api/notes";
 import { useArchiveNoteModalStore } from "@/features/note-archive/archiveNoteModalStore";
 
 export default function ArchiveNoteModal() {
-  const { isOpen, noteId, noteTitle, closeArchiveModal } =
-    useArchiveNoteModalStore();
+  const {
+    isOpen,
+    noteId,
+    noteTitle,
+    isDeleting,
+    isArchiving,
+    closeArchiveModal,
+  } = useArchiveNoteModalStore();
   const { errorMessage, setArchiveError } = useArchiveNoteModalStore();
   const queryClient = useQueryClient();
 
@@ -18,7 +24,11 @@ export default function ArchiveNoteModal() {
         throw new Error("Заметка не выбрана");
       }
 
-      return toggleNoteArchive(noteId);
+      if (!isDeleting) {
+        return toggleNoteArchive(noteId);
+      } else {
+        return deleteNote(noteId);
+      }
     },
     onSuccess: async () => {
       await Promise.all([
@@ -70,19 +80,48 @@ export default function ArchiveNoteModal() {
         className="w-full max-w-md animate-[modal-in_220ms_cubic-bezier(0.16,1,0.3,1)_both] rounded-2xl border border-border-subtle bg-bg-card p-6 shadow-[0_24px_80px_rgba(0,0,0,0.55)]"
       >
         <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-red-400/10 text-red-300">
-              <AlertTriangle size={19} />
+          {isArchiving ? (
+            <div className="flex items-start gap-3">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent-dim text-accent">
+                <ArchiveRestore size={19} />
+              </div>
+              <div>
+                <h2
+                  id="delete-note-title"
+                  className="text-[18px] font-semibold"
+                >
+                  Восстановить заметку?
+                </h2>
+                <p className="mt-2 text-[13px] leading-5 text-text-secondary">
+                  «{noteTitle}» будет восстановлена.
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 id="delete-note-title" className="text-[18px] font-semibold">
-                Удалить заметку?
-              </h2>
-              <p className="mt-2 text-[13px] leading-5 text-text-secondary">
-                «{noteTitle}» будет удалена и добавлена в корзину.
-              </p>
+          ) : (
+            <div className="flex items-start gap-3">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-red-400/10 text-red-300">
+                <AlertTriangle size={19} />
+              </div>
+              <div>
+                <h2
+                  id="delete-note-title"
+                  className="text-[18px] font-semibold"
+                >
+                  Удалить заметку?
+                </h2>
+                {isDeleting ? (
+                  <p className="mt-2 text-[13px] leading-5 text-text-secondary">
+                    «{noteTitle}» будет безвозвратно удалена.
+                  </p>
+                ) : (
+                  <p className="mt-2 text-[13px] leading-5 text-text-secondary">
+                    «{noteTitle}» будет удалена и добавлена в корзину.
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
+          )}
+
           <button
             type="button"
             aria-label="Закрыть окно подтверждения"
@@ -100,27 +139,41 @@ export default function ArchiveNoteModal() {
           </p>
         )}
 
-        <div className="mt-6 flex justify-end gap-2">
+        <div className="mt-6 flex md:justify-end gap-2">
           <button
             type="button"
             disabled={deleteMutation.isPending}
             onClick={closeArchiveModal}
-            className="cursor-pointer rounded-xl border border-border-subtle px-4 py-2.5 text-[13px] font-medium text-text-secondary transition-colors hover:border-border-focus hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-40"
+            className="w-full md:w-auto cursor-pointer rounded-xl border border-border-subtle px-4 py-2.5 text-[13px] font-medium text-text-secondary transition-colors hover:border-border-focus hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-40"
           >
             Отмена
           </button>
-          <button
-            type="button"
-            disabled={deleteMutation.isPending}
-            onClick={() => {
-              setArchiveError(null);
-              deleteMutation.mutate();
-            }}
-            className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-2.5 text-[13px] font-medium text-red-300 transition-colors hover:bg-red-400/20 hover:text-red-200 disabled:cursor-wait disabled:opacity-60"
-          >
-            <Trash2 size={14} />
-            {deleteMutation.isPending ? "Удаление..." : "Удалить"}
-          </button>
+          {isArchiving ? (
+            <button
+              type="button"
+              disabled={deleteMutation.isPending}
+              onClick={() => {
+                setArchiveError(null);
+                deleteMutation.mutate();
+              }}
+              className="w-full md:w-auto justify-center inline-flex cursor-pointer items-center gap-2 rounded-xl border border-accent/40 bg-accent px-4 py-2.5 text-[13px] font-medium text-bg-main transition-colors hover:bg-accent/20 hover:text-text-primary disabled:cursor-wait disabled:opacity-60"
+            >
+              {deleteMutation.isPending ? "Восстановление..." : "Восстановить"}
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled={deleteMutation.isPending}
+              onClick={() => {
+                setArchiveError(null);
+                deleteMutation.mutate();
+              }}
+              className="w-full md:w-auto justify-center inline-flex cursor-pointer items-center gap-2 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-2.5 text-[13px] font-medium text-red-300 transition-colors hover:bg-red-400/20 hover:text-red-200 disabled:cursor-wait disabled:opacity-60"
+            >
+              <Trash2 size={14} />
+              {deleteMutation.isPending ? "Удаление..." : "Удалить"}
+            </button>
+          )}
         </div>
       </section>
     </div>,

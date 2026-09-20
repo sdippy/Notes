@@ -74,7 +74,6 @@ export async function deleteNote(noteId: string): Promise<void> {
     method: "DELETE",
   });
 
-  // A stale card can refer to a note that was already removed elsewhere.
   if (response.status === 404) {
     return;
   }
@@ -92,7 +91,6 @@ export async function toggleNotePin(noteId: string): Promise<void> {
     method: "PATCH",
   });
 
-  // A stale card can refer to a note that was already removed elsewhere.
   if (response.status === 404) {
     return;
   }
@@ -110,7 +108,6 @@ export async function toggleNoteArchive(noteId: string): Promise<void> {
     method: "PATCH",
   });
 
-  // A stale card can refer to a note that was already removed elsewhere.
   if (response.status === 404) {
     return;
   }
