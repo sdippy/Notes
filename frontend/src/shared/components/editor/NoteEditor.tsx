@@ -10,6 +10,8 @@ import Color from "@tiptap/extension-color";
 import Highlight from "@tiptap/extension-highlight";
 import TextAlign from "@tiptap/extension-text-align";
 
+import { Clock, Star } from "lucide-react";
+
 import { EditorToolbar } from "@/shared/components/editor/EditorToolbar";
 import "./editor.css";
 
@@ -72,18 +74,22 @@ export function NoteEditor({
   };
 
   return (
-    <div>
-      <EditorToolbar editor={editor} />
-      <EditorContent editor={editor} />
-      <div>
-        {onCancel && (
-          <button type="button" onClick={onCancel}>
-            Отмена
-          </button>
-        )}
+    <div className="flex flex-1 flex-col">
+      <div className="flex flex-col border-b border-border-subtle">
+        <EditorToolbar editor={editor} />
+        <EditorContent editor={editor} />
+      </div>
 
-        <button type="button" onClick={handleSave}>
-          Сохранить
+      <div className="mt-auto flex justify-between py-4">
+        <span className="text-text-secondary flex items-center gap-2 text-[14px]">
+          <Clock size={18} />
+          Автосохранения включено
+        </span>
+        <button
+          type="button"
+          className="text-accent hover:border-accent flex cursor-pointer items-center gap-2 border-b border-transparent text-[14px] font-medium transition-all duration-200"
+        >
+          <Star size={18} />В избранное
         </button>
       </div>
     </div>
