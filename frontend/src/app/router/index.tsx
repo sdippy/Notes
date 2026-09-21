@@ -11,6 +11,7 @@ import LayoutMenu from "@/widgets/layout/layout_menu";
 import MainNotes from "@/pages/notes/MainNotes";
 import FeatureNotes from "@/pages/notes/FeatureNotes";
 import ArchiveNotes from "@/pages/notes/ArchiveNotes";
+import NoteEdit from "@/pages/notes/NoteEdit";
 import PageNotFound from "@/pages/PageNotFound";
 import { ProtectedRoute } from "./ProtectedRoute";
 
@@ -31,6 +32,11 @@ export const router = createBrowserRouter(
         </Route>
         <Route path="/Archive" element={<LayoutMenu />}>
           <Route path="/Archive" element={<ArchiveNotes />} />
+        </Route>
+        <Route path="/notes" element={<LayoutMenu />}>
+          <Route path="create" element={<NoteEdit />} />
+
+          <Route path="edit/:id" element={<NoteEdit />} />
         </Route>
       </Route>
 

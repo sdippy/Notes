@@ -126,7 +126,7 @@ export default function MainNotes() {
               </span>
             </div>
             <PageNavButton
-              to="/"
+              to="/notes/create"
               className="w-full border border-accent/40 bg-accent px-5 py-2.5 text-[15px] font-semibold text-bg-main shadow-[0_0_24px_rgba(16,185,129,0.12)] hover:border-accent hover:bg-accent-dim hover:text-text-primary sm:w-auto"
               label={"+ Создать заметку"}
             />

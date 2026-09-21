@@ -1,0 +1,363 @@
+.tiptap {
+  min-height: 400px;
+  color: rgba(255, 255, 255, 0.9);
+  outline: none;
+  line-height: 1.7;
+}
+
+/* =========================
+Paragraphs
+========================= */
+
+.tiptap p {
+  margin: 0.5rem 0;
+  font-size: 17px;
+  color: #a1a1aa;
+}
+
+.tiptap p:first-child {
+  margin-top: 0;
+}
+
+.tiptap p:last-child {
+  margin-bottom: 0;
+}
+
+/* =========================
+Headings
+========================= */
+
+.tiptap h1,
+.tiptap h2,
+.tiptap h3 {
+  color: #ffffff;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.tiptap h1 {
+  margin: 1.75rem 0 0.75rem;
+  font-size: 2rem;
+}
+
+.tiptap h2 {
+  margin: 1.5rem 0 0.65rem;
+  font-size: 1.5rem;
+}
+
+.tiptap h3 {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+/* =========================
+Text formatting
+========================= */
+
+.tiptap strong {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.tiptap em {
+  font-style: italic;
+}
+
+.tiptap u {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.tiptap s {
+  text-decoration: line-through;
+  opacity: 0.75;
+}
+
+/* =========================
+Links
+========================= */
+
+.tiptap a {
+  color: #adc6ff;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.tiptap a:hover {
+  opacity: 0.75;
+}
+
+/* =========================
+Lists
+========================= */
+
+.tiptap ul:not([data-type="taskList"]) {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+  list-style-type: disc;
+  color: #a1a1aa;
+}
+
+.tiptap ol {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+  list-style-type: decimal;
+  color: #a1a1a1;
+}
+
+.tiptap li {
+  margin: 0.25rem 0;
+}
+
+.tiptap li p {
+  margin: 0;
+  font-size: 17px;
+  color: #a1a1aa;
+}
+
+/* Nested lists */
+
+.tiptap ul ul {
+  list-style-type: circle;
+}
+
+.tiptap ul ul ul {
+  list-style-type: square;
+}
+
+.tiptap ol ol {
+  list-style-type: lower-alpha;
+}
+
+/* =========================
+Task list
+========================= */
+
+.tiptap ul[data-type="taskList"] {
+  list-style: none;
+  margin: 0.75rem 0;
+  padding: 0;
+}
+
+.tiptap ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin: 0.4rem 0;
+}
+
+.tiptap ul[data-type="taskList"] li > label {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  margin-top: 0.35rem;
+}
+
+.tiptap ul[data-type="taskList"] li > label input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: #adc6ff;
+}
+
+.tiptap ul[data-type="taskList"] li > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.tiptap ul[data-type="taskList"] li[data-checked="true"] > div {
+  color: rgba(255, 255, 255, 0.4);
+  text-decoration: line-through;
+}
+
+/* =========================
+Blockquote
+========================= */
+
+.tiptap blockquote {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid #10b981;
+  border-radius: 0 0.5rem 0.5rem 0;
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.tiptap blockquote p {
+  margin: 0;
+  font-size: 16px;
+  color: #fff;
+}
+
+/* =========================
+Inline code
+========================= */
+
+.tiptap code {
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.35rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: #adc6ff;
+  font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+  font-size: 0.9em;
+}
+
+/* =========================
+Code block
+========================= */
+
+.tiptap pre {
+  margin: 1rem 0;
+  padding: 1rem;
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  background: #0b0e13;
+}
+
+.tiptap pre code {
+  display: block;
+  padding: 0;
+  overflow: visible;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+/* =========================
+Images
+========================= */
+
+.tiptap img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1rem 0;
+  border-radius: 0.75rem;
+}
+
+.tiptap img.ProseMirror-selectednode {
+  outline: 2px solid #adc6ff;
+  outline-offset: 3px;
+}
+
+/* =========================
+Horizontal rule
+========================= */
+
+.tiptap hr {
+  margin: 2rem 0;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* =========================
+Text alignment
+========================= */
+
+.tiptap [style*="text-align: left"] {
+  text-align: left;
+}
+
+.tiptap [style*="text-align: center"] {
+  text-align: center;
+}
+
+.tiptap [style*="text-align: right"] {
+  text-align: right;
+}
+
+.tiptap [style*="text-align: justify"] {
+  text-align: justify;
+}
+
+/* =========================
+Placeholder
+========================= */
+
+.tiptap p.is-editor-empty:first-child::before {
+  color: rgba(255, 255, 255, 0.3);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* =========================
+Selection
+========================= */
+
+.tiptap ::selection {
+  background: rgba(173, 198, 255, 0.25);
+}
+
+/* =========================
+Focus
+========================= */
+
+.tiptap:focus {
+  outline: none;
+}
+
+/* =========================
+Tables (если добавишь
+Table extension позже)
+========================= */
+
+.tiptap table {
+  width: 100%;
+  margin: 1rem 0;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.tiptap th,
+.tiptap td {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: left;
+}
+
+.tiptap th {
+  background: rgba(255, 255, 255, 0.05);
+  font-weight: 600;
+}
+
+.tiptap td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* =========================
+Mobile
+========================= */
+
+@media (max-width: 640px) {
+  .tiptap {
+    min-height: 300px;
+    font-size: 0.95rem;
+  }
+
+  .tiptap h1 {
+    font-size: 1.65rem;
+  }
+
+  .tiptap h2 {
+    font-size: 1.35rem;
+  }
+
+  .tiptap h3 {
+    font-size: 1.15rem;
+  }
+
+  .tiptap pre {
+    margin-left: -0.25rem;
+    margin-right: -0.25rem;
+    border-radius: 0.5rem;
+  }
+}

@@ -1,7 +1,7 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useQueries } from "@tanstack/react-query";
 
-import { Star, Box, Trash, Shield } from "lucide-react";
+import { Star, Box, Trash, Shield, ArrowLeft } from "lucide-react";
 import { getNotes } from "@/shared/types";
 
 interface LayoutAsideProps {
@@ -32,11 +32,29 @@ export default function LayoutAside({ onNavigate }: LayoutAsideProps) {
 
   const counts = countQueries.map((query) => query.data?.totalCount ?? 0);
 
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const isNotePage = location.pathname.startsWith("/notes");
+
   return (
     <div className="flex h-full w-64 flex-col border-r border-border-subtle p-4">
-      <button className="w-full bg-accent text-bg-main text-[16px] font-semibold py-2.5 rounded-xl hover:bg-accent-dim hover:text-text-primary transition-colors duration-200 cursor-pointer">
-        + Новая заметка
-      </button>
+      {isNotePage ? (
+        <button
+          onClick={() => navigate(-1)}
+          className="w-full flex gap-2 items-center justify-center bg-bg-input text-text-secondary text-[16px] font-semibold py-2.5 rounded-xl border border-border-subtle hover:bg-bg-hover hover:text-text-primary hover:border-border-focus transition-colors duration-200 cursor-pointer"
+        >
+          <ArrowLeft size={20} />
+          Вернуться назад
+        </button>
+      ) : (
+        <NavLink
+          to="/notes/create"
+          className="w-full text-center bg-accent text-bg-main text-[16px] font-semibold py-2.5 rounded-xl border border-transparent hover:bg-accent-dim hover:text-text-primary transition-colors duration-200 cursor-pointer"
+        >
+          + Новая заметка
+        </NavLink>
+      )}
 
       <div className="flex-1 flex flex-col gap-2 mt-6">
         <NavLink
